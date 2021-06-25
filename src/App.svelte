@@ -1,4 +1,7 @@
 <script>
+
+	import { onMount } from "svelte";
+	import { fade } from 'svelte/transition';
 	//export可以加，也可以不加
 	let name = 'World';
 	export let a = 4;
@@ -24,10 +27,49 @@
 	//html内容
 	let html = `<h3 style="color: #eee">Hello Wold</h3>`
 
+	//事件
 	let count = 0;
 	function handleClick(event){
 		count += 1;
 	}
+	//事件修饰符
+	function handleSubmit(){
+		console.log("我点击了提交按钮");
+	}
+
+	//数据绑定
+	let value = "";
+	let getHelloWorldDom;//这个在下面绑定了，就是dom本身
+	onMount(() => {
+		console.log(getHelloWorldDom);
+	});
+
+	//动态样式
+	let active  = true;
+
+	//元素生命周期监听
+	//可以往use:action上挂载数据，action就是下边的foo函数
+	let bar = false;
+	function foo(node) {
+		// 已经在 dom 挂载
+		console.log("挂载成功！");
+		return {
+			update(bar) {
+				// 当 bar 更新的时候触发
+				console.log(`bar 更新了`);
+			},
+			destroy() {
+				// 已经在 dom 销毁
+				console.log("销毁成功！");
+			}
+		};
+	}
+	//更新上述参数
+	function handleUpdate() {
+		bar = true;
+	}
+	//注意fade的引入
+	let visible = false;
 
 
 
@@ -80,6 +122,45 @@
 		count: {count}
 	</button>
 
+	<!-- 事件修饰符 -->
+	<form on:submit|preventDefault={handleSubmit}>
+		<button
+			type="submit"
+		>
+		submit</button>
+	</form>
+	<!-- 数据绑定 -->
+	<input bind:value={value} />
+	<p><textarea bind:value={value}></textarea></p>
+
+	<!-- bind:this ref -->
+	<div bind:this={getHelloWorldDom}>get dom</div>
+
+
+	<!-- class -->
+	<div class="com"> </div>
+	<!-- 动态样式 -->
+	<div style="margin-top:5px" class="{active ? 'active':"com"}"> </div>
+
+
+	<!-- use:action 元素生命周期监听 -->
+	<!-- <div use:foo >生命周期-1-3</div> -->
+	<div use:foo={bar} />
+	<button on:click={handleUpdate}>点击</button>
+
+	<!-- transition:fn fn内部怎么操作可以参照文档 -->
+	
+	{#if visible}
+		<div transition:fade="{{ duration: 2000 }}">
+			flies in, fades out over two seconds
+		</div>
+	{/if}
+	<p><button on:click={()=>{visible=true}}>transition</button></p>
+
+
+
+
+
 
 
 </section>
@@ -87,5 +168,16 @@
 .hello {
     color: red;
 }
+.active{
+	width: 200px;
+	height: 50px;
+	background: green;
+}
+.com{
+	width: 200px;
+	height: 50px;
+	background: purple;
+}
+
 </style>
 
