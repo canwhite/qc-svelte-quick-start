@@ -2,6 +2,28 @@
 
 	import { onMount } from "svelte";
 	import { fade } from 'svelte/transition';
+
+	//引入组件
+	import Nested from "./Nested.svelte"
+	import {count$} from "./store-rx"
+	import {dispatch} from "frer"
+	let c = 0;
+	 
+	count$.subscribe(val=>{
+		c = val;
+	})
+
+	function add(){
+		dispatch("count",{
+			type:"add"
+		})
+	}
+	function sub(){
+		dispatch("count",{
+			type:"sub"
+		})
+	}
+
 	//export可以加，也可以不加
 	let name = 'World';
 	export let a = 4;
@@ -72,10 +94,23 @@
 	let visible = false;
 
 
+	//组件事件的外部触发,参数里边可以拿到event
+	//然后从detail里拿到text
+	function handleMessage(event){
+		alert(event.detail.text)
+	}
+
+
 
 	
 </script>
 <section>
+
+	<!-- sync -->
+	<div>{c}</div>
+	<button on:click={add}>add</button>
+	<button on:click={sub}>sub</button>
+
 	<!-- 模板语言单括号来表示 -->
 	<h1 class="hello">Hello {name}!</h1>
 	<!-- 表达式 -->
@@ -158,6 +193,11 @@
 	<p><button on:click={()=>{visible=true}}>transition</button></p>
 
 
+	<!-- 组件，首字母大写 App内的css不影响组件样式 -->
+	<!-- 事件的触发和响应，属性的绑定和程接 -->
+	<p>This is a paragraph.</p>
+	<Nested bind:c={c} on:message={handleMessage} />
+
 
 
 
@@ -177,6 +217,11 @@
 	width: 200px;
 	height: 50px;
 	background: purple;
+}
+p {
+	color: purple;
+	font-family: 'Comic Sans MS', cursive;
+	font-size: 2em;
 }
 
 </style>
