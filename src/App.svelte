@@ -1,18 +1,16 @@
 <script>
 
-	import { onMount } from "svelte";
+
 	import { fade } from 'svelte/transition';
+	import Nested from "./Nested.svelte";//component
+	import Widget from "./Widget.svelte";//slot
+	import {onMount,onDestroy,beforeUpdate,afterUpdate } from "svelte";
+	import {count$} from "./store-rx";
+	import {dispatch} from "frer";
+	import Loop from "./Loop.svelte"
 
-	//引入组件
-	import Nested from "./Nested.svelte"
-	import {count$} from "./store-rx"
-	import {dispatch} from "frer"
+	//store and  hooks
 	let c = 0;
-	 
-	count$.subscribe(val=>{
-		c = val;
-	})
-
 	function add(){
 		dispatch("count",{
 			type:"add"
@@ -23,6 +21,25 @@
 			type:"sub"
 		})
 	}
+	onMount(async () => {
+		count$.subscribe(val=>{
+			c = val;
+		})
+	});
+	onDestroy(() =>{
+
+	});
+	//eg：聊天机器人的高度调整，before的时候加个tag，after之后再判断调整
+	beforeUpdate(() => {
+		/* autoscroll = div && (div.offsetHeight + div.scrollTop) > (div.scrollHeight - 20); */
+	});
+
+	afterUpdate(() => {
+		/* if (autoscroll) div.scrollTo(0, div.scrollHeight); */
+	});
+
+
+
 
 	//export可以加，也可以不加
 	let name = 'World';
@@ -99,6 +116,10 @@
 	function handleMessage(event){
 		alert(event.detail.text)
 	}
+
+	//组件绑定自身
+	let nest;
+	let comp = 5;
 
 
 
@@ -196,7 +217,30 @@
 	<!-- 组件，首字母大写 App内的css不影响组件样式 -->
 	<!-- 事件的触发和响应，属性的绑定和程接 -->
 	<p>This is a paragraph.</p>
-	<Nested bind:c={c} on:message={handleMessage} />
+	<!-- 组件也可以绑定自身 -->
+	<Nested  bind:this={nest}  bind:c={c} on:message={handleMessage} />
+	<div> 
+		<button on:click={() => {
+			console.log(nest.$$);
+		}}>
+			Empty shopping cart
+		</button>
+	</div>
+
+	<!-- 插槽 -->
+	<Widget>
+		<h1 slot="header">Hello</h1>
+		这部分内容体现在不具名插槽里
+		<p slot="footer">Copyright (c) 2019 Svelte Industries</p>
+	</Widget>
+
+
+	<!-- 组件循环 -->
+	<Loop count = {comp} />
+
+
+
+
 
 
 
